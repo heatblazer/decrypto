@@ -27,13 +27,24 @@ void printbits(T val)
 {
     bitset2<T> bset;
     bset.value = val;
-    for(int i=0; i < sizeof(T); i++) {
+    for(int i=sizeof(T)-1; i >= 0; i--) {
         printf("%d|%d|%d|%d|%d|%d|%d|%d|",
             bset.ubits[i].b7, bset.ubits[i].b6, bset.ubits[i].b5, bset.ubits[i].b4,
             bset.ubits[i].b3, bset.ubits[i].b2, bset.ubits[i].b1, bset.ubits[i].b0);
     }
     printf("\r\n----------------\r\n");
 }
+
+template<typename T>
+T reversebits(T val)
+{
+    T result = 0;
+    for(int i = (sizeof(T) * 8) -1; val; i--, val >>= 1) {
+        result |= ((val & 1) << i) ;
+    }
+    return result;
+}
+
 
 typedef int (*binop)(unsigned char a, unsigned char b);
 
@@ -54,6 +65,7 @@ void pairtext(const std::vector<std::string>& strvec, std::vector<std::string>& 
 void removetags(std::string& ref);
 
 
+
 #ifdef __unix__
 #define  DOWNLOAD popen("curl -s http://magadans22.org ", "r")
 #else 
@@ -64,8 +76,11 @@ int main(void)
 {        
 
 
-#if 0 //test section
-printbits<int>(0xff00ffaa);
+#if 1 //test section
+
+unsigned int val = 0xff000000;
+unsigned int val2 = reversebits(val);
+printbits<unsigned int>(val2);;
 #endif
 
 
