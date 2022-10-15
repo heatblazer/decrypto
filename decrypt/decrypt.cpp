@@ -4,8 +4,10 @@
 #include <cstring>
 #include <algorithm>
 
+template<typename T>
 union bitset2
 {
+    T value;
     struct
     {
         uint8_t b0 : 1;
@@ -16,9 +18,22 @@ union bitset2
         uint8_t b5 : 1;
         uint8_t b6 : 1;
         uint8_t b7 : 1;
-    } ubits;
-    char value;
+    } ubits[sizeof(T)];
+    uint8_t data[sizeof(T)];
 };
+
+template<typename T>
+void printbits(T val)
+{
+    bitset2<T> bset;
+    bset.value = val;
+    for(int i=0; i < sizeof(T); i++) {
+        printf("%d|%d|%d|%d|%d|%d|%d|%d|",
+            bset.ubits[i].b7, bset.ubits[i].b6, bset.ubits[i].b5, bset.ubits[i].b4,
+            bset.ubits[i].b3, bset.ubits[i].b2, bset.ubits[i].b1, bset.ubits[i].b0);
+    }
+    printf("\r\n----------------\r\n");
+}
 
 typedef int (*binop)(unsigned char a, unsigned char b);
 
@@ -27,8 +42,6 @@ bool is_vowel(const char x);
 int pairbytes(unsigned char a, unsigned char b);
 
 void split(const char* str, const char* delim, std::vector<std::string>& out);
-
-void printbits(bitset2 bset);
 
 void removenl(std::string& str);
 
@@ -49,6 +62,13 @@ void removetags(std::string& ref);
 
 int main(void)
 {        
+
+
+#if 0 //test section
+printbits<int>(0xff00ffaa);
+#endif
+
+
     FILE* site = DOWNLOAD;
     std::string sitetxt;
     size_t tabulations = 0;
@@ -78,9 +98,7 @@ int main(void)
 
     for (auto s : splits) {
         for (auto c : s) {
-            bitset2 b;
-            b.value = c;
-            printbits(b);
+            printbits<char>(c);
         }
         puts("####################################");
     }
@@ -138,14 +156,6 @@ void split(const char* str, const char* delim, std::vector<std::string>& out)
     }
 }
 
-
-void printbits(bitset2 bset)
-{
-    printf("%d|%d|%d|%d|%d|%d|%d|%d\r\n",
-        bset.ubits.b7, bset.ubits.b6, bset.ubits.b5, bset.ubits.b4,
-        bset.ubits.b3, bset.ubits.b2, bset.ubits.b1, bset.ubits.b0);
-    printf("----------------\r\n");
-}
 
 void removenl(std::string& str)
 {
