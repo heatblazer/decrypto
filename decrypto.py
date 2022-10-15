@@ -31,7 +31,6 @@ def parse():
                     node.mapped.update({slice :  1})                    
                 else:
                     node.mapped[slice] += 1 
-
                 if slice not in HISTOGRAM:
                     HISTOGRAM.update({slice :  1})
                 else:
@@ -49,4 +48,8 @@ if __name__ == "__main__":
         print(n.mapped)
     print("####################################")
     print(HISTOGRAM)
+
+
+    for k in HISTOGRAM:
+        print(HISTOGRAM[k])
     pass
