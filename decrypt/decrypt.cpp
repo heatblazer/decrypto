@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
-#include <string.h>
+#include <cstring>
+#include <algorithm>
 
 
 
@@ -99,6 +100,11 @@ void removetags(std::string& ref)
 }
 #endif
 
+void removenl(std::string& str)
+{
+    str.erase(std::remove(str.begin(), str.end(), '\n'), str.cend());
+}
+
 int main()
 {
 
@@ -108,12 +114,12 @@ int main()
     std::string sitetxt;
     char buffer[512] = { 0 };
     while (fgets(buffer, sizeof(buffer), site))
-    {
-
+    {        
         sitetxt.append(buffer);
     }
 
     removetags(sitetxt);
+    removenl(sitetxt);
 
     std::cout << sitetxt << std::endl;
 
