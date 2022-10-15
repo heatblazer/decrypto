@@ -4,8 +4,6 @@
 #include <cstring>
 #include <algorithm>
 
-static const char TXT[] = "Yhakukyzyp sohaqyzaso ganixozynucopy xatubiqoma dehoqicaze ijokuqycaxejot ydub nytebi xyvuqakawatusudy bunyve ebepux pagejimavixu iw buzicosinati uvodylybiqemim ozotyjowigymyqas ukapep eqowyp iduvif byhino. Hekusydysika ox yqesywumoh giluripu zi ynahosah odyracycovuw zykajetige doly didamohisudaha pe hibilu arydudykuzyl adybibaqukinuj op cy cizacixogawesugi nu ydit itewisewapuf nymanirolo edigypar";
-
 union bitset2
 {
     struct
@@ -34,7 +32,7 @@ void printbits(bitset2 bset);
 
 void removenl(std::string& str);
 
-void tablocation(const std::string& str);
+void tablocation(const std::string& str, std::vector<int>& out);
 
 size_t tabcounter(const std::string str);
 
@@ -49,11 +47,15 @@ void removetags(std::string& ref);
 #define DOWNLOAD _popen("curl -s http://magadans22.org ", "r")
 #endif
 
-int main()
-{    
+int main(void)
+{        
     FILE* site = DOWNLOAD;
     std::string sitetxt;
+    size_t tabulations = 0;
+    std::vector<int> tablocations; 
+    std::vector<std::string> splits, paired;
     char buffer[512] = { 0 };
+
     while (fgets(buffer, sizeof(buffer), site))
     {        
         sitetxt.append(buffer);
@@ -61,16 +63,15 @@ int main()
 
     removetags(sitetxt);
     removenl(sitetxt);
-    size_t tabulations = tabcounter(sitetxt);
-
+    
+    tabulations = tabcounter(sitetxt);
     std::cout << "TABS: " << tabulations << std::endl;
-    tablocation(sitetxt);
+    tablocation(sitetxt, tablocations);
 
     puts("####################################");
 
     std::cout << sitetxt << std::endl;
 
-    std::vector<std::string> splits, paired;
     split(sitetxt.c_str(), " ", splits);
 
     pairtext(splits, paired, &pairbytes);
@@ -153,13 +154,12 @@ void removenl(std::string& str)
 }
 
 
-void tablocation(const std::string& str)
+void tablocation(const std::string& str, std::vector<int>& out)
 {
-    std::vector<int> locations;
     for(int i=0; i < str.size(); i++)
-        if (str[i] == '\t') locations.push_back(i);
+        if (str[i] == '\t') out.push_back(i);
     
-    for(auto l : locations) 
+    for(auto l : out) 
         std::cout << l << "|";
     std::cout << "\r\n";
 }
