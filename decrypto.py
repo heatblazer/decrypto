@@ -1,55 +1,43 @@
+#!/usr/bin/python
 
+import subprocess
+import os
+import sys
+import re
 
-TITLE = "Agojyxyfakafoq risetefoxaxuhe besalufavyqabefu idojatejolup ebizuvekukef cihite"
-
-TXT = '''Yhakukyzyp sohaqyzaso ganixozynucopy xatubiqoma dehoqicaze ijokuqycaxejot ydub nytebi xyvuqakawatusudy bunyve ebepux pagejimavixu iw buzicosinati uvodylybiqemim ozotyjowigymyqas ukapep eqowyp iduvif byhino. Hekusydysika ox yqesywumoh giluripu zi ynahosah odyracycovuw zykajetige doly didamohisudaha pe hibilu arydudykuzyl adybibaqukinuj op cy cizacixogawesugi nu ydit itewisewapuf nymanirolo edigypar.
-Opim ykomocox ibevebifiwemeb huriry iloboxyfamiras hapesedevy adiruholoj abax mypafigolezo sedalenidi ruro kevovufe ur gyqehegitiwe cugamofutitobeve egyhaw ulaxocejyx dawywojolomiwu ig upydezaj ofytimoxiq.
-Ecokabozajudez iqyh daralexazyza te sevomasuxorivi otyxigyf ucybeqequsan amiv yxokehyp apynides iziputekuqoj okedywobopeh gakibusonupugu iqosinexihyt odyjep kurilugocypygo soxuxiletevy tygi umuj bivinipehimuse hilo.
-Ijakumolezadyg ripuwulybo ykimocuj yfugevyquw bufilivo adabobud ujip jidygedywo lamafociresymuki aputatywucutol irikonyzur eqihiseqaxidyluj tukacyti pydefekykazihidu yfagoryd umeqepipyhiqyzim idizutep ynywetavuw qa ovaceqilohetov akahuhinobihylev xabisusawi pofywu ty. Dybyjafedymydy qecilunynifo okeduf tohuqegugozo rego elemyw ux lodekaryhawigi itytibazozifif ylorejipevevun egylajulytydug qeniju vixalesewehoce wuqixilyhureca zofuci otuhepedofes iq oloqofamowex labimityrehihu ocajasuxyp apelacukuxixevet ixaxecapejisyx eqez ilijidejatitaroh.'''
-
-
-
-class MNode:
-    def __init__(self):
-        self.mapped = {}
-
+def cleanhtml(raw_html):
+  cleanr = re.compile('<.*?>')
+  cleantext = re.sub(cleanr, '', raw_html)
+  return cleantext
 
 nodes = [] # per word count
 
 HISTOGRAM = {}
 
-def parse():
-    data = TXT.split(' ')
-    print(len(data))
-    for d in data:
-        if len(d) % 2 == 0:
-            i, j = 0, 2
-            node = MNode()
-            while i < len(d):
-                slice = d[i:j]
-                if slice not in node.mapped:
-                    node.mapped.update({slice :  1})                    
-                else:
-                    node.mapped[slice] += 1 
-                if slice not in HISTOGRAM:
-                    HISTOGRAM.update({slice :  1})
-                else:
-                    HISTOGRAM[slice] += 1 
-                i+=2
-                j+=2
-            nodes.append(node)
-            pass 
+def donwload(url):
+    txt = str()
+    dataout = []
+    fp = subprocess.check_output("curl -s {}".format(url), shell=True)
+    tf = fp.decode('utf-8')
+    for line in tf:
+        txt += line
+    cleantxt = cleanhtml(txt)
+    dataout = cleantxt.split(" ")
+    return dataout 
 
 
+
+#usage decrypto.py -n <number of downloads>
+# if none it will download once
 
 if __name__ == "__main__":
-    parse()
-    for n in nodes:
-        print(n.mapped)
-    print("####################################")
-    print(HISTOGRAM)
+    count = 1
+    for i in range(len(sys.argv)):
+        if sys.argv[i] == "-n":
+            count = int(sys.argv[i+1])
 
-
-    for k in HISTOGRAM:
-        print(HISTOGRAM[k])
+    for i in range(0, count):
+        data= donwload("http://magadans22.org")
+        print(data)
+        print("###########################################")
     pass

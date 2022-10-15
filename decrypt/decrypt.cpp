@@ -76,7 +76,7 @@ int main(void)
 {        
 
 
-#if 1 //test section
+#if 0 //test section
 
 unsigned int val = 0xff000000;
 unsigned int val2 = reversebits(val);
@@ -86,7 +86,8 @@ printbits<unsigned int>(val2);;
 
     FILE* site = DOWNLOAD;
     std::string sitetxt;
-    size_t tabulations = 0;
+    size_t tabulations = 0, counter = 0;
+    uint16_t checksum = 0;
     std::vector<int> tablocations; 
     std::vector<std::string> splits, paired;
     char buffer[512] = { 0 };
@@ -109,7 +110,18 @@ printbits<unsigned int>(val2);;
 
     split(sitetxt.c_str(), " ", splits);
 
-    pairtext(splits, paired, &pairbytes);
+    pairtext(splits, paired, nullptr);
+
+    for(auto csum : tablocations)
+        checksum ^= csum;
+
+    for(auto pr : paired)
+    {
+        uint8_t p = (pr[0] ) & (pr[1]);        
+        std::cout << (char) p ; 
+    }
+
+    puts("####################################");
 
     for (auto s : splits) {
         for (auto c : s) {
@@ -204,14 +216,10 @@ void pairtext(const std::vector<std::string>& strvec, std::vector<std::string>& 
         const char * begin = str.c_str();
         while (*begin == '\t') begin++;
         size_t cnt = 0 ;
-        for(const char*c = begin, *n = begin+1; *c != '\0'; )
+        for(const char*c = begin, *n = begin+1; *c != '\0' && *c != '.'; )
         {
             char pair[3]= {0};
             sprintf(pair, "%c%c", *c, *n);
-            if (bop) 
-            {
-                int result = bop(*c, *n);
-            }
             c += 2;
             n += 2;
             out.push_back(pair);
