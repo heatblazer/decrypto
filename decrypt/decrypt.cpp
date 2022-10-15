@@ -103,6 +103,28 @@ void removetags(std::string& ref)
 void removenl(std::string& str)
 {
     str.erase(std::remove(str.begin(), str.end(), '\n'), str.cend());
+    str.erase(std::remove(str.begin(), str.end(), '\r'), str.cend());
+    
+}
+
+
+void tablocation(const std::string& str)
+{
+    std::vector<int> locations;
+    for(int i=0; i < str.size(); i++)
+        if (str[i] == '\t') locations.push_back(i);
+    
+    for(auto l : locations) 
+        std::cout << l << "|";
+    std::cout << "\r\n";
+}
+
+size_t tabcounter(const std::string str)
+{
+    size_t cnt = 0;
+    for(auto c : str) 
+        if (c == '\t') cnt++;
+    return cnt;
 }
 
 int main()
@@ -121,6 +143,14 @@ int main()
     removetags(sitetxt);
     removenl(sitetxt);
 
+
+    size_t tabulations = tabcounter(sitetxt);
+
+    std::cout << "TABS: " << tabulations << std::endl;
+    tablocation(sitetxt);
+
+    puts("####################################");
+
     std::cout << sitetxt << std::endl;
 
     std::vector<std::string> splits;
@@ -131,7 +161,7 @@ int main()
             b.value = c;
             printbits(b);
         }
-        puts("##################");
+        puts("####################################");
     }
     return 0;
 }
