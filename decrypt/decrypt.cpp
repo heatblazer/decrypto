@@ -161,10 +161,9 @@ struct DoWork
 
     void test3()
     {
-        const char* start = sitetxt.c_str();
-        for(const char*  begin = sitetxt.c_str(), *end = sitetxt.cend().base(); *begin != '\0' && end != start; begin++, end--)
+        for (auto s : splits) 
         {
-            printf("[%c][%c]\r\n", *begin, *end);
+            printf("[%s]=[%d]\r\n", s.c_str(), s.size());
         }
     }
 
@@ -252,7 +251,7 @@ void removenl(std::string& str)
 void removesym(std::string& str)
 {
     str.erase(std::remove(str.begin(), str.end(), '.'), str.cend());
-    str.erase(std::remove(str.begin(), str.end(), ' '), str.cend());    
+//    str.erase(std::remove(str.begin(), str.end(), ' '), str.cend());    
 }
 
 
