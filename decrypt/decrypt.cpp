@@ -161,9 +161,19 @@ struct DoWork
 
     void test3()
     {
+        std::vector<std::string> pairs;
         for (auto s : splits) 
         {
-            printf("[%s]=[%d]\r\n", s.c_str(), s.size());
+            if (s.size() == 2) {
+                pairs.push_back(s);
+            }
+        }
+
+        for(auto p : pairs) {
+            auto b = p.cbegin();
+            auto e = p.end()-1;
+            auto c = (*b.base() & *e.base()) + 2;
+            std::cout << p << ":" << (char) c << std::endl;
         }
     }
 
