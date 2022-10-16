@@ -69,7 +69,7 @@ void pairtext(const std::vector<std::string>& strvec, std::vector<std::string>& 
 
 void removetags(std::string& ref);
 
-
+bool isprime(long long int);
 
 #ifdef __unix__
 #define  DOWNLOAD popen("curl -s http://magadans22.org ", "r")
@@ -103,9 +103,9 @@ struct DoWork
         }
         removetags(sitetxt);
         removenl(sitetxt);
+        removesym(sitetxt, ".\t\n");
         split(sitetxt.c_str(), " ", splits);
         
-        removesym(sitetxt, ".\t\n ");
         symcount = sitetxt.size();
         for (int i=0; i < sitetxt.size(); i++) {
             if (is_vowel(sitetxt[i])) 
@@ -156,9 +156,11 @@ struct DoWork
         for (auto s : paired) 
         {
             unsigned char a = s[0], b = s[1];
-            unsigned short paired = (a << 8) | (b);
-            unsigned char t = (paired ) & splits.size();
-            printf("[%c]\r\n", t);            
+            unsigned short paired = (b << 8) | (a);
+            if (isprime(paired))
+                printf("PRIME\r\n");
+            else
+                printf("NOT PRIME\r\n");
         }
     }
 
@@ -185,12 +187,76 @@ struct DoWork
 
         std::cout << sitetxt << std::endl;
     }
-
+#if 0
     void test5()
     {
-        std::cout << "WORDS: " << splits.size() << std::endl;
-        std::cout << "SYMBOLS: " << symcount << std::endl;
+        for (auto s : splits) {
+            std::string vow, con, fin;
+            std::vector<std::string> paired2;
+            bool startswithvow = is_vowel(s.at(0)) ? true : false;
+            for (auto c : s) {               
+                if (is_vowel(c))
+                    vow += c;
+                else 
+                    con += c;
+            }
+            if (startswithvow) {
+                for(auto v : vow)
+                    fin += v;
+                for (auto c : con)
+                    fin += c;
+            } else 
+            {
+                for (auto c : con)
+                    fin += c;
+                for(auto v : vow)
+                    fin += v;
+            }
+            const char* begin = fin.c_str();
+            for(const char*c = begin, *n = begin+1; *c != '\0'; )
+            {
+                char pair[3]= {0};
+    #ifdef __unix__
+                sprintf(pair, "%c%c", *c, *n);
+    #else
+                sprintf_s(pair, "%c%c", *c, *n);
+    #endif
+                paired2.push_back(pair);
+                c += 2;
+                n += 2;
+
+            }
+            std::string utfs ;
+            for(auto p : paired2)            
+            {
+                utfs += char(3 << 6);
+                utfs += char(1 << 7);
+            }
+            printf("----------\r\n");
+        }
     }
+#endif 
+
+    void test6()
+    {
+        std::string utfenc;
+        int cnt = 0;
+        for (auto p : paired) 
+        {
+            if (cnt > 1024)
+                break;
+        /**
+         * @brief 
+         * out += char(7 << 5);
+            out += char(1 << 7);
+            out += char(1 << 7);
+         */
+        for(int i=0; i < utfenc.size(); i++) {
+            printf("\\x%02x", utfenc[i] & 0xff);
+        }
+        return;
+    }
+
 };
 
 
@@ -205,7 +271,7 @@ int main(void)
         workers[i].join();
 
     for (int i = 0; i < LOOPCNT; i++) {
-        w[i].test3();
+        w[i].test6();
     }
     return 0;
 }
@@ -326,4 +392,15 @@ void removetags(std::string& ref)
             ref.erase(startpos, endpos - startpos);
         }
     }
+}
+
+bool isprime(long long int a)
+{
+    if (a == 1) return false;
+    for(long long int i = 2; i <= a / 2; i++) 
+    {
+        if (a % i == 0) 
+            return false;
+    }
+    return true;
 }
