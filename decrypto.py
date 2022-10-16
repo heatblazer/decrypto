@@ -8,6 +8,7 @@ import re
 def cleanhtml(raw_html):
   cleanr = re.compile('<.*?>')
   cleantext = re.sub(cleanr, '', raw_html)
+  cleantext = cleantext.replace(' ', '').replace('\n', '').replace('\t', '').replace('.', '')
   return cleantext
 
 nodes = [] # per word count
@@ -23,7 +24,7 @@ def donwload(url):
         txt += line
     cleantxt = cleanhtml(txt)
     dataout = cleantxt.split(" ")
-    return dataout 
+    return cleantxt 
 
 
 
@@ -39,5 +40,4 @@ if __name__ == "__main__":
     for i in range(0, count):
         data= donwload("http://magadans22.org")
         print(data)
-        print("###########################################")
     pass

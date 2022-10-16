@@ -59,7 +59,7 @@ void split(const char* str, const char* delim, std::vector<std::string>& out);
 
 void removenl(std::string& str);
 
-void removesym(std::string& str);
+void removesym(std::string& str, const char* syms);
 
 void tablocation(const std::string& str, std::vector<int>& out);
 
@@ -81,15 +81,15 @@ void removetags(std::string& ref);
 struct DoWork 
 {
     FILE* site;
-    std::string sitetxt;
-    size_t tabulations, counter, vowels, consonants;
+    std::string sitetxt, originaltxt;
+    size_t tabulations, counter, vowels, consonants, words, symcount;
     uint16_t checksum ;
     std::vector<int> tablocations; 
     std::vector<std::string> splits, paired;
     char buffer[512] ;
 
     DoWork() : site{NULL}, tabulations{0}, counter{0}, 
-    vowels{0}, consonants{0}, checksum{0}, buffer{0}
+    vowels{0}, consonants{0}, words{0}, symcount{0}, checksum{0}, buffer{0}
     {
     }
 
@@ -99,10 +99,14 @@ struct DoWork
         while (fgets(buffer, sizeof(buffer), site))
         {        
             sitetxt.append(buffer);
+            originaltxt.append(buffer);
         }
         removetags(sitetxt);
         removenl(sitetxt);
-        removesym(sitetxt);
+        split(sitetxt.c_str(), " ", splits);
+        
+        removesym(sitetxt, ".\t\n ");
+        symcount = sitetxt.size();
         for (int i=0; i < sitetxt.size(); i++) {
             if (is_vowel(sitetxt[i])) 
                 vowels += 1;
@@ -111,7 +115,6 @@ struct DoWork
         }
         tabulations = tabcounter(sitetxt);
         tablocation(sitetxt, tablocations);
-        split(sitetxt.c_str(), " ", splits);
         pairtext(splits, paired, nullptr);
     }
 
@@ -161,30 +164,39 @@ struct DoWork
 
     void test3()
     {
-        std::vector<std::string> pairs;
-        for (auto s : splits) 
-        {
-            if (s.size() == 2) {
-                pairs.push_back(s);
-            }
-        }
-
-        for(auto p : pairs) {
+        const char key[]  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        for(auto p : paired) {
             auto b = p.cbegin();
             auto e = p.end()-1;
-            auto c = (*b.base() & *e.base()) + 2;
-            std::cout << p << ":" << (char) c << std::endl;
+            unsigned char t ;
+            if (is_vowel(*b))
+                t = *b  | *e;
+            else 
+                t = *b & *e;
+
+            printf("[%c]", t);
         }
     }
 
+    void test4()
+    {
+        const char key[]  = "mgdns22";
+        int cnt = 0;
 
+        std::cout << sitetxt << std::endl;
+    }
+
+    void test5()
+    {
+        std::cout << "WORDS: " << splits.size() << std::endl;
+        std::cout << "SYMBOLS: " << symcount << std::endl;
+    }
 };
 
 
 int main(void)
 {        
-
-     DoWork w[LOOPCNT];
+    DoWork w[LOOPCNT];
     std::vector<std::thread> workers;
     for(int i=0; i < LOOPCNT; i++) {
         workers.push_back(std::thread(&DoWork::operator(), &w[i]));
@@ -194,8 +206,6 @@ int main(void)
 
     for (int i = 0; i < LOOPCNT; i++) {
         w[i].test3();
-
-
     }
     return 0;
 }
@@ -245,7 +255,8 @@ void split(const char* str, const char* delim, std::vector<std::string>& out)
         it++;
         split(it, delim, out);
     }
-    else {
+    else 
+    {
         std::string data{ str };
         out.push_back(data);
     }
@@ -258,10 +269,13 @@ void removenl(std::string& str)
     str.erase(std::remove(str.begin(), str.end(), '\r'), str.cend());    
 }
 
-void removesym(std::string& str)
+void removesym(std::string& str, const char* syms)
 {
-    str.erase(std::remove(str.begin(), str.end(), '.'), str.cend());
-//    str.erase(std::remove(str.begin(), str.end(), ' '), str.cend());    
+    if (!syms) 
+        return ; 
+    for(const char* it = syms ; *it != '\0' ; it++) {
+        str.erase(std::remove(str.begin(), str.end(), *it), str.cend());
+    }
 }
 
 
@@ -286,7 +300,7 @@ void pairtext(const std::vector<std::string>& strvec, std::vector<std::string>& 
         const char * begin = str.c_str();
         while (*begin == '\t') begin++;
         size_t cnt = 0 ;
-        for(const char*c = begin, *n = begin+1; *c != '\0' && *c != '.'; )
+        for(const char*c = begin, *n = begin+1; *c != '\0'; )
         {
             char pair[3]= {0};
 #ifdef __unix__
@@ -307,7 +321,8 @@ void removetags(std::string& ref)
     {
         auto startpos = ref.find("<");
         auto endpos = ref.find(">") + 1;
-        if (endpos != std::string::npos) {
+        if (endpos != std::string::npos) 
+        {
             ref.erase(startpos, endpos - startpos);
         }
     }
