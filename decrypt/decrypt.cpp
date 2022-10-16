@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <thread>
 
-#define LOOPCNT 100
+#define LOOPCNT 1
 
 template<typename T>
 union bitset2
@@ -59,6 +59,8 @@ void split(const char* str, const char* delim, std::vector<std::string>& out);
 
 void removenl(std::string& str);
 
+void removesym(std::string& str);
+
 void tablocation(const std::string& str, std::vector<int>& out);
 
 size_t tabcounter(const std::string str);
@@ -80,13 +82,14 @@ struct DoWork
 {
     FILE* site;
     std::string sitetxt;
-    size_t tabulations, counter ;
+    size_t tabulations, counter, vowels, consonants;
     uint16_t checksum ;
     std::vector<int> tablocations; 
     std::vector<std::string> splits, paired;
     char buffer[512] ;
 
-    DoWork() : site{NULL}, tabulations{0}, counter{0}, checksum{0}, buffer{0}
+    DoWork() : site{NULL}, tabulations{0}, counter{0}, 
+    vowels{0}, consonants{0}, checksum{0}, buffer{0}
     {
     }
 
@@ -99,12 +102,72 @@ struct DoWork
         }
         removetags(sitetxt);
         removenl(sitetxt);
-        
+        removesym(sitetxt);
+        for (int i=0; i < sitetxt.size(); i++) {
+            if (is_vowel(sitetxt[i])) 
+                vowels += 1;
+            else
+                consonants+=1;
+        }
         tabulations = tabcounter(sitetxt);
         tablocation(sitetxt, tablocations);
         split(sitetxt.c_str(), " ", splits);
         pairtext(splits, paired, nullptr);
     }
+
+    void test1()
+    {
+        std::cout << "Words: " << splits.size() << std::endl;
+        for (auto s : paired) 
+        {
+            unsigned char a = s[0], b = s[1];
+            for(int i=0; i < 8; i++) 
+            {
+                int shift = 7-i;
+                printf("[%c]", (a & b) | (vowels) >> shift);
+                printf("[%c]", (a & b) ^ (vowels) >> shift);
+                printf("[%c]", (a ^ b) & (vowels) >> shift);
+                printf("[%c]", (a ^ b) ^ (vowels) >> shift);
+
+                printf("[%c]", (a & b) | (consonants) >> shift);
+                printf("[%c]", (a & b) ^ (consonants) >> shift);
+                printf("[%c]", (a ^ b) & (consonants) >> shift);
+                printf("[%c]", (a ^ b) ^ (consonants) >> shift);
+
+                printf("[%c]", (a & b) | (vowels &  consonants));
+                printf("[%c]", (a & b) ^ (vowels &  consonants));
+                printf("[%c]", (a ^ b) & (vowels &  consonants));
+                printf("[%c]", (a ^ b) ^ (vowels &  consonants));
+
+                puts("..");
+            }
+        }
+    }
+
+
+    void test2()
+    {
+        std::cout << "Words: " << splits.size() << std::endl;
+        
+        unsigned short h = (vowels ^ consonants);
+        for (auto s : paired) 
+        {
+            unsigned char a = s[0], b = s[1];
+            unsigned short paired = (a << 8) | (b);
+            unsigned char t = (paired ) & splits.size();
+            printf("[%c]\r\n", t);            
+        }
+    }
+
+    void test3()
+    {
+        const char* start = sitetxt.c_str();
+        for(const char*  begin = sitetxt.c_str(), *end = sitetxt.cend().base(); *begin != '\0' && end != start; begin++, end--)
+        {
+            printf("[%c][%c]\r\n", *begin, *end);
+        }
+    }
+
 
 };
 
@@ -113,10 +176,6 @@ int main(void)
 {        
 
      DoWork w[LOOPCNT];
-//    for(int i=0; i < 10; i++) 
-//        w[i]();
- //   std::thread t (&DoWork::foo, &worker);
- //   t.join();
     std::vector<std::thread> workers;
     for(int i=0; i < LOOPCNT; i++) {
         workers.push_back(std::thread(&DoWork::operator(), &w[i]));
@@ -125,8 +184,8 @@ int main(void)
         workers[i].join();
 
     for (int i = 0; i < LOOPCNT; i++) {
-        std::cout << w[i].sitetxt << std::endl;
-        std::cout << "#############################################################" << std::endl;
+        w[i].test3();
+
 
     }
     return 0;
@@ -188,6 +247,12 @@ void removenl(std::string& str)
 {
     str.erase(std::remove(str.begin(), str.end(), '\n'), str.cend());
     str.erase(std::remove(str.begin(), str.end(), '\r'), str.cend());    
+}
+
+void removesym(std::string& str)
+{
+    str.erase(std::remove(str.begin(), str.end(), '.'), str.cend());
+    str.erase(std::remove(str.begin(), str.end(), ' '), str.cend());    
 }
 
 
