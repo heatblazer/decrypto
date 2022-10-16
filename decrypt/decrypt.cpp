@@ -3,6 +3,9 @@
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include <thread>
+
+#define LOOPCNT 1000
 
 template<typename T>
 union bitset2
@@ -72,63 +75,55 @@ void removetags(std::string& ref);
 #define DOWNLOAD _popen("curl -s http://magadans22.org ", "r")
 #endif
 
+
+struct DoWork 
+{
+    FILE* site;
+    std::string sitetxt;
+    size_t tabulations, counter ;
+    uint16_t checksum ;
+    std::vector<int> tablocations; 
+    std::vector<std::string> splits, paired;
+    char buffer[512] ;
+
+    DoWork() : site{NULL}, tabulations{0}, counter{0}, checksum{0}, buffer{0}
+    {
+    }
+
+    void operator()()
+    {
+        printf("Started ...\r\n");
+        site = DOWNLOAD; 
+        while (fgets(buffer, sizeof(buffer), site))
+        {        
+            sitetxt.append(buffer);
+        }
+        removetags(sitetxt);
+        removenl(sitetxt);
+        
+        tabulations = tabcounter(sitetxt);
+        tablocation(sitetxt, tablocations);
+        split(sitetxt.c_str(), " ", splits);
+        pairtext(splits, paired, nullptr);
+    }
+
+};
+
+
 int main(void)
 {        
 
-
-#if 0 //test section
-
-unsigned int val = 0xff000000;
-unsigned int val2 = reversebits(val);
-printbits<unsigned int>(val2);;
-#endif
-
-
-    FILE* site = DOWNLOAD;
-    std::string sitetxt;
-    size_t tabulations = 0, counter = 0;
-    uint16_t checksum = 0;
-    std::vector<int> tablocations; 
-    std::vector<std::string> splits, paired;
-    char buffer[512] = { 0 };
-
-    while (fgets(buffer, sizeof(buffer), site))
-    {        
-        sitetxt.append(buffer);
+     DoWork w[10];
+//    for(int i=0; i < 10; i++) 
+//        w[i]();
+ //   std::thread t (&DoWork::foo, &worker);
+ //   t.join();
+    std::vector<std::thread> workers;
+    for(int i=0; i < 10; i++) {
+        workers.push_back(std::thread(&DoWork::operator(), &w[i]));
     }
-
-    removetags(sitetxt);
-    removenl(sitetxt);
-    
-    tabulations = tabcounter(sitetxt);
-    std::cout << "TABS: " << tabulations << std::endl;
-    tablocation(sitetxt, tablocations);
-
-    puts("####################################");
-
-    std::cout << sitetxt << std::endl;
-
-    split(sitetxt.c_str(), " ", splits);
-
-    pairtext(splits, paired, nullptr);
-
-    for(auto csum : tablocations)
-        checksum ^= csum;
-
-    for(auto pr : paired)
-    {
-        uint8_t p = (pr[0] ) & (pr[1]);        
-        std::cout << (char) p ; 
-    }
-
-    puts("####################################");
-
-    for (auto s : splits) {
-        for (auto c : s) {
-            printbits<char>(c);
-        }
-        puts("####################################");
-    }
+    for(int i=0; i < 10; i++)
+        workers[i].join();
     return 0;
 }
 
@@ -194,11 +189,7 @@ void removenl(std::string& str)
 void tablocation(const std::string& str, std::vector<int>& out)
 {
     for(int i=0; i < str.size(); i++)
-        if (str[i] == '\t') out.push_back(i);
-    
-    for(auto l : out) 
-        std::cout << l << "|";
-    std::cout << "\r\n";
+        if (str[i] == '\t') out.push_back(i);    
 }
 
 size_t tabcounter(const std::string str)
