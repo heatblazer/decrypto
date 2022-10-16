@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <thread>
 
-#define LOOPCNT 1000
+#define LOOPCNT 100
 
 template<typename T>
 union bitset2
@@ -92,7 +92,6 @@ struct DoWork
 
     void operator()()
     {
-        printf("Started ...\r\n");
         site = DOWNLOAD; 
         while (fgets(buffer, sizeof(buffer), site))
         {        
@@ -113,17 +112,23 @@ struct DoWork
 int main(void)
 {        
 
-     DoWork w[10];
+     DoWork w[LOOPCNT];
 //    for(int i=0; i < 10; i++) 
 //        w[i]();
  //   std::thread t (&DoWork::foo, &worker);
  //   t.join();
     std::vector<std::thread> workers;
-    for(int i=0; i < 10; i++) {
+    for(int i=0; i < LOOPCNT; i++) {
         workers.push_back(std::thread(&DoWork::operator(), &w[i]));
     }
-    for(int i=0; i < 10; i++)
+    for(int i=0; i < LOOPCNT; i++)
         workers[i].join();
+
+    for (int i = 0; i < LOOPCNT; i++) {
+        std::cout << w[i].sitetxt << std::endl;
+        std::cout << "#############################################################" << std::endl;
+
+    }
     return 0;
 }
 
@@ -210,7 +215,11 @@ void pairtext(const std::vector<std::string>& strvec, std::vector<std::string>& 
         for(const char*c = begin, *n = begin+1; *c != '\0' && *c != '.'; )
         {
             char pair[3]= {0};
+#ifdef __unix__
             sprintf(pair, "%c%c", *c, *n);
+#else
+            sprintf_s(pair, "%c%c", *c, *n);
+#endif
             c += 2;
             n += 2;
             out.push_back(pair);
