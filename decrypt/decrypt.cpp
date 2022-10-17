@@ -27,6 +27,7 @@ union bitset2
     uint8_t data[sizeof(T)];
 };
 
+
 template<typename T>
 void printbits(T val)
 {
@@ -91,7 +92,8 @@ struct DoWork
     char buffer[512] ;
 
     DoWork() : site{NULL}, tabulations{0}, counter{0}, 
-    vowels{0}, consonants{0}, words{0}, symcount{0}, checksum{0}, buffer{0}
+                vowels{0}, consonants{0}, words{0}, 
+                symcount{0}, checksum{0}, buffer{0}
     {
     }
 
@@ -300,6 +302,50 @@ struct DoWork
         std::cout << std::endl;
     }
 
+    void test9()
+    {
+        size_t hwm = 0;
+        for(auto t : splits) 
+            if (t.size() > hwm)
+                hwm = t.size();
+        if (hwm  >= 16)
+            std::cout << "Longest is: " << hwm << std::endl;
+    }
+
+    void test10()
+    {
+        std::string xtostr;
+        std::string ytostr;
+        std::string json;
+        json += "{\r\n";
+
+        xtostr += "\"x\": [";
+        ytostr += "\"y\": [";
+
+        for(auto p : paired) {
+            char xs[8] = {0};
+            char ys[8] = {0};
+            
+            sprintf(xs, "%d,", (int)p.at(0));
+            sprintf(ys, "%d,", (int)p.at(1));
+
+            xtostr += xs;
+            ytostr += ys;
+            
+        }
+
+        xtostr.erase(xtostr.end()-1);
+        xtostr += "]";
+        json += xtostr;
+        json += ",\r\n";
+        ytostr.erase(ytostr.end()-1);
+        ytostr += "]";
+        json += ytostr;
+        json += "\r\n}\r\n";
+        std::cout << json;
+        
+    }
+
 };
 
 
@@ -314,7 +360,7 @@ int main(void)
         workers[i].join();
 
     for (int i = 0; i < LOOPCNT; i++) {
-        w[i].test8();
+        w[i].test10();
     }
     return 0;
 }
