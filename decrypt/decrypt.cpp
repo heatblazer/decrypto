@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <vector>
 #include <cstring>
+#include <cmath>
 #include <algorithm>
 #include <thread>
 
@@ -251,10 +252,34 @@ struct DoWork
             out += char(1 << 7);
             out += char(1 << 7);
          */
-        for(int i=0; i < utfenc.size(); i++) {
-            printf("\\x%02x", utfenc[i] & 0xff);
+            for(int i=0; i < utfenc.size(); i++) {
+                printf("\\x%02x", utfenc[i] & 0xff);
+            }
         }
         return;
+    }
+
+    void test7()
+    {
+        for (auto p : paired)
+        {
+            unsigned short pb = (p[1] ) & (p[0]);
+            float period = sin(pb);
+            float period2 = cos(pb);
+            bitset2<float> bs,ps;
+            bs.value = period;
+            ps.value = period2;
+            unsigned int ip = (bs.data[3] << 24) | (bs.data[2] << 16) | (bs.data[1] <<8 ) | (bs.data[0]) ;
+            unsigned int ip2 = (ps.data[3] << 24) | (ps.data[2] << 16) | (ps.data[1] <<8 ) | (ps.data[0]) ;
+            
+            for(int j=0, offset = 0 ;j < sizeof(ip); j++, offset += 8)
+            {
+                char c = (ip >> offset) & 0xff;
+                char b = (ip2 >> offset) & 0xff;
+                printf("[%c]-[%c]->[%c]", c, b, c + b);
+            }
+            puts("\r\n----------------------------");
+        }
     }
 
 };
@@ -271,7 +296,7 @@ int main(void)
         workers[i].join();
 
     for (int i = 0; i < LOOPCNT; i++) {
-        w[i].test6();
+        w[i].test7();
     }
     return 0;
 }
