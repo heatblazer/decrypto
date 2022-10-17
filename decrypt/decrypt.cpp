@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
+#include <map>
 #include <cstring>
 #include <cmath>
 #include <algorithm>
@@ -282,6 +283,23 @@ struct DoWork
         }
     }
 
+    void test8()
+    {
+        std::map<int, int> vow ;
+        int cnt = 0;
+        for(auto c : originaltxt)
+        {
+            if (is_vowel(c))
+                vow[(int)c]++;
+        }
+
+        for(auto kv : vow)
+        {
+            std::cout << "sym: " << (char)kv.first << "\t|" << kv.first << "\t|" << kv.second << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
 };
 
 
@@ -296,7 +314,7 @@ int main(void)
         workers[i].join();
 
     for (int i = 0; i < LOOPCNT; i++) {
-        w[i].test7();
+        w[i].test8();
     }
     return 0;
 }
