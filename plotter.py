@@ -5,6 +5,7 @@ import json
 import sys
 
 li = list(zip(range(1, 14), range(14, 27)))
+COLCNT = 6
 
 
 def plotme(fname):
@@ -18,16 +19,16 @@ def plotme(fname):
 
     xpoints = np.array(data['x'])
     ypoints = np.array(data['y'])
-    partx = int(xpoints.size / 3)
-    party = int(ypoints.size / 3)
+    partx = int(xpoints.size / COLCNT)
+    party = int(ypoints.size / COLCNT)
 
-    colors = ['red', 'green', 'blue']
+    colors = ['r', 'g', 'b', 'c', 'm', 'k']
     i , j= 0, 0
     while i < xpoints.size:
-        plt.plot(xpoints[i:partx], ypoints[i:party],color=colors[j%3])
+        plt.plot(xpoints[i:partx], ypoints[i:party],color=colors[j%COLCNT])
         partx += partx
         party += party
-        i += int(ypoints.size / 3)
+        i += int(ypoints.size / COLCNT)
         j += 1
 #    plt.show()
     outfname = "{}.png".format(fname)

@@ -8,7 +8,7 @@
 #include <thread>
 #include <fstream>
 
-#define LOOPCNT 100
+#define LOOPCNT 1
 
 template<typename T>
 union bitset2
@@ -316,7 +316,7 @@ struct DoWork
     void test10()
     {
         static int cnt = 1;
-        char fname[16] = {0};
+        char fname[32] = {0};
         sprintf(fname, "%d.json", cnt++);
         std::string xtostr;
         std::string ytostr;
@@ -325,13 +325,19 @@ struct DoWork
 
         xtostr += "\"x\": [";
         ytostr += "\"y\": [";
-
+        const char calpha[] = "bcdfghjklmnpqrstvwxz";
+        const char valpha[] = "aeiouy";
+        int vcnt = 0, ccnt = 0;
         for(auto p : paired) {
-            char xs[8] = {0};
-            char ys[8] = {0};
-            sprintf(xs, "%d,", (int)p.at(0));
-            sprintf(ys, "%d,", (int)p.at(1));
-
+            char xs[16] = {0};
+            char ys[16] = {0};
+            if (is_vowel(p.at(0))) {
+                sprintf(xs, "%d,", p.at(0) + p.at(1));
+                sprintf(ys, "%d,", p.at(1) - p.at(0));
+            } else {
+                sprintf(xs, "%d,", p.at(0) - p.at(1));
+                sprintf(ys, "%d,", p.at(1) + p.at(0));    
+            }
             xtostr += xs;
             ytostr += ys;
             
