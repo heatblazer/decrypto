@@ -10,6 +10,13 @@
 
 #define LOOPCNT 1
 
+#ifdef __unix__
+#define SPRINTF sprintf
+#else
+#define SPRINTF sprintf_s
+#endif
+
+
 template<typename T>
 union bitset2
 {
@@ -317,7 +324,7 @@ struct DoWork
     {
         static int cnt = 1;
         char fname[32] = {0};
-        sprintf(fname, "%d.json", cnt++);
+        SPRINTF(fname, "%d.json", cnt++);
         std::string xtostr;
         std::string ytostr;
         std::string json;
@@ -332,11 +339,11 @@ struct DoWork
             char xs[16] = {0};
             char ys[16] = {0};
             if (is_vowel(p.at(0))) {
-                sprintf(xs, "%d,", p.at(0) + p.at(1));
-                sprintf(ys, "%d,", p.at(1) - p.at(0));
+                SPRINTF(xs, "%d,", p.at(0) + p.at(1));
+                SPRINTF(ys, "%d,", p.at(1) - p.at(0));
             } else {
-                sprintf(xs, "%d,", p.at(0) - p.at(1));
-                sprintf(ys, "%d,", p.at(1) + p.at(0));    
+                SPRINTF(xs, "%d,", p.at(0) - p.at(1));
+                SPRINTF(ys, "%d,", p.at(1) + p.at(0));
             }
             xtostr += xs;
             ytostr += ys;
