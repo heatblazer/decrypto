@@ -6,8 +6,9 @@
 #include <cmath>
 #include <algorithm>
 #include <thread>
+#include <fstream>
 
-#define LOOPCNT 1
+#define LOOPCNT 100
 
 template<typename T>
 union bitset2
@@ -314,6 +315,9 @@ struct DoWork
 
     void test10()
     {
+        static int cnt = 1;
+        char fname[16] = {0};
+        sprintf(fname, "%d.json", cnt++);
         std::string xtostr;
         std::string ytostr;
         std::string json;
@@ -325,7 +329,6 @@ struct DoWork
         for(auto p : paired) {
             char xs[8] = {0};
             char ys[8] = {0};
-            
             sprintf(xs, "%d,", (int)p.at(0));
             sprintf(ys, "%d,", (int)p.at(1));
 
@@ -342,8 +345,11 @@ struct DoWork
         ytostr += "]";
         json += ytostr;
         json += "\r\n}\r\n";
-        std::cout << json;
-        
+
+        std::ofstream myfile;
+        myfile.open (fname);
+        myfile << json;
+        myfile.close();      
     }
 
 };
