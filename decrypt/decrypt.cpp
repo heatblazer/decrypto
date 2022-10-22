@@ -1,9 +1,12 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
+#include <stdalign.h>
 #include <map>
 #include <cstring>
 #include <cmath>
+#include <ctime>
+#include <chrono>
 #include <algorithm>
 #include <thread>
 #include <fstream>
@@ -21,7 +24,7 @@ template<typename T>
 union bitset2
 {
     T value;
-    struct
+    alignas(sizeof(T)) struct
     {
         uint8_t b0 : 1;
         uint8_t b1 : 1;
@@ -32,7 +35,7 @@ union bitset2
         uint8_t b6 : 1;
         uint8_t b7 : 1;
     } ubits[sizeof(T)];
-    uint8_t data[sizeof(T)];
+    alignas(sizeof(T)) uint8_t data[sizeof(T)];
 };
 
 
@@ -103,6 +106,8 @@ struct DoWork
                 vowels{0}, consonants{0}, words{0}, 
                 symcount{0}, checksum{0}, buffer{0}
     {
+        sitetxt.resize(20000);
+        originaltxt.resize(20000);
     }
 
     void operator()()
@@ -329,15 +334,13 @@ struct DoWork
         std::string ytostr;
         std::string json;
         json += "{\r\n";
-
         xtostr += "\"x\": [";
         ytostr += "\"y\": [";
-        const char calpha[] = "bcdfghjklmnpqrstvwxz";
-        const char valpha[] = "aeiouy";
         int vcnt = 0, ccnt = 0;
         for(auto p : paired) {
             char xs[16] = {0};
             char ys[16] = {0};
+            #if 0
             if (is_vowel(p.at(0))) {
                 SPRINTF(xs, "%d,", p.at(0) + p.at(1));
                 SPRINTF(ys, "%d,", p.at(1) - p.at(0));
@@ -345,6 +348,10 @@ struct DoWork
                 SPRINTF(xs, "%d,", p.at(0) - p.at(1));
                 SPRINTF(ys, "%d,", p.at(1) + p.at(0));
             }
+            #else
+                SPRINTF(xs, "%d,", p.at(0));
+                SPRINTF(ys, "%d,", p.at(1));
+            #endif
             xtostr += xs;
             ytostr += ys;
             
@@ -451,7 +458,6 @@ void removesym(std::string& str, const char* syms)
         str.erase(std::remove(str.begin(), str.end(), *it), str.cend());
     }
 }
-
 
 void tablocation(const std::string& str, std::vector<int>& out)
 {
