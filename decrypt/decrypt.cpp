@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
-#include <stdalign.h>
+#include <cstdalign>
 #include <map>
 #include <cstring>
 #include <cmath>
