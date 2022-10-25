@@ -92,6 +92,44 @@ bool isprime(long long int);
 #endif
 
 
+static const char ALPHA[] = "abcdefghijklmnopqrstuvwxyz";
+static const char VOWELS[] = "aeiouy";
+static const char CONSONANTS[] = "bcdfghjklmnpqrstvwxz";
+
+
+struct CharLookup
+{
+    std::map<std::string, std::vector<char> > m_lookup;
+
+    CharLookup()
+    {
+        for(int i=0;i < sizeof(VOWELS); i++) {
+            for (int j=0; j < sizeof(CONSONANTS); j++) {
+                std::string s;
+                s += CONSONANTS[j];
+                s += VOWELS[i];
+                for(int k=0; k < sizeof(ALPHA); k++) {
+                    m_lookup[s].push_back(ALPHA[k]);
+                }
+            }
+        }   
+    }
+
+    void print()
+    {
+        for(auto kv : m_lookup) 
+        {
+            for (auto v : kv.second) {
+                std::cout << "#[" << kv.first << "]$[" << v << "]";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+
+};
+
+
 struct DoWork 
 {
     FILE* site;
@@ -372,11 +410,20 @@ struct DoWork
         myfile.close();      
     }
 
+
+    void test11()
+    {
+        CharLookup cl;
+        cl.print();
+    }
+
 };
 
 
 int main(void)
 {        
+
+#if 0
     DoWork w[LOOPCNT];
     std::vector<std::thread> workers;
     for(int i=0; i < LOOPCNT; i++) {
@@ -388,6 +435,11 @@ int main(void)
     for (int i = 0; i < LOOPCNT; i++) {
         w[i].test10();
     }
+#else
+
+    CharLookup cl;
+    cl.print();
+#endif
     return 0;
 }
 
@@ -518,3 +570,4 @@ bool isprime(long long int a)
     }
     return true;
 }
+
