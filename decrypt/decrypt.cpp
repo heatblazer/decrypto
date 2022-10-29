@@ -85,6 +85,8 @@ void removetags(std::string& ref);
 
 bool isprime(long long int);
 
+void lowerall(std::string& ref);
+
 #ifdef __unix__
 #define  DOWNLOAD popen("curl -s http://magadans22.org ", "r")
 #else 
@@ -106,8 +108,19 @@ struct CharLookup
         for(int i=0;i < sizeof(VOWELS); i++) {
             for (int j=0; j < sizeof(CONSONANTS); j++) {
                 std::string s;
-                s += CONSONANTS[j];
                 s += VOWELS[i];
+                s += CONSONANTS[j];
+                for(int k=0; k < sizeof(ALPHA); k++) {
+                    m_lookup[s].push_back(ALPHA[k]);
+                }
+            }
+        }
+
+        for(int i=0;i < sizeof(CONSONANTS); i++) {
+            for (int j=0; j < sizeof(VOWELS); j++) {
+                std::string s, v;
+                s += CONSONANTS[i];
+                s += VOWELS[j];
                 for(int k=0; k < sizeof(ALPHA); k++) {
                     m_lookup[s].push_back(ALPHA[k]);
                 }
@@ -411,10 +424,33 @@ struct DoWork
     }
 
 
-    void test11()
+    void test_from_file()
     {
         CharLookup cl;
-        cl.print();
+        std::string txt;
+        std::ifstream ifs {"data.txt"};
+        std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                           (std::istreambuf_iterator<char>()    ) );
+        removesym(content, ".\t\n");
+        lowerall(content);
+        split(content.c_str(), " ", splits);
+        tablocation(content, tablocations);
+        pairtext(splits, paired, nullptr);
+#if 0 // hint me
+            char fname[256] = {0};
+            SPRINTF(fname, "/home/ilian/gitprojects/decrypto/decrypt/Text/%d.txt", cnt++);
+            std::string text;
+            writeout(text, fname);            
+#endif         
+
+    }
+
+    void writeout(const std::string& txt, const char* fname)
+    {
+        std::ofstream myfile;
+        myfile.open (fname);
+        myfile << txt; 
+        myfile.close();
     }
 
 };
@@ -436,9 +472,10 @@ int main(void)
         w[i].test10();
     }
 #else
-
-    CharLookup cl;
-    cl.print();
+    DoWork w;
+    w.test_from_file();
+//    CharLookup cl;
+//    cl.print();
 #endif
     return 0;
 }
@@ -569,5 +606,13 @@ bool isprime(long long int a)
             return false;
     }
     return true;
+}
+
+void lowerall(std::string& ref)
+{
+    for (int i=0; i < ref.size(); i++) 
+    {
+        ref[i] = tolower(ref[i]);
+    }
 }
 
