@@ -132,8 +132,9 @@ struct CharLookup
     {
         for(auto kv : m_lookup) 
         {
+            std::cout << kv.first << "|";
             for (auto v : kv.second) {
-                std::cout << "#[" << kv.first << "]$[" << v << "]";
+                std::cout << "[" << v << "]";
             }
             std::cout << std::endl;
         }
@@ -473,9 +474,9 @@ int main(void)
     }
 #else
     DoWork w;
-    w.test_from_file();
-//    CharLookup cl;
-//    cl.print();
+//    w.test_from_file();
+    CharLookup cl;
+    cl.print();
 #endif
     return 0;
 }
